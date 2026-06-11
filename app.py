@@ -21,8 +21,8 @@ app.config['JSON_AS_ASCII'] = False
 
 # 配置（优先从环境变量读取）
 TOKEN = os.environ.get("WECHAT_TOKEN", "xiaoyi123")
-APPID = os.environ.get("WECHAT_APPID", "wx42474dc60531bdb7")
-APPSECRET = os.environ.get("WECHAT_APPSECRET", "5d0efac1eae139dcda1620091ebc691d")
+APPID = os.environ.get("WECHAT_APPID", "wxca273c12b4b93e60")
+APPSECRET = os.environ.get("WECHAT_APPSECRET", "8c45367c4eae1fc8363c4b4dba21c8e3")
 MIMO_API_KEY = os.environ.get("MIMO_API_KEY", "sk-c2gypg28s6zw74f05ivjx5pbqn419mkw2zsuu2j279120j8z")
 
 # 访问令牌
