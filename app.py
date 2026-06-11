@@ -34,7 +34,9 @@ conversation_history = {}
 HISTORY_MAX = 10
 
 # 任务存储
-TASKS_FILE = os.path.expanduser("~/.local/share/mimocode/life-assistant/tasks.json")
+TASKS_DIR = os.path.expanduser("~/.local/share/mimocode/life-assistant")
+os.makedirs(TASKS_DIR, exist_ok=True)
+TASKS_FILE = os.path.join(TASKS_DIR, "tasks.json")
 
 
 def get_access_token():
@@ -123,7 +125,15 @@ def call_mimo(user_input, user_id):
             messages=history
         )
 
-        reply = resp.content[0].text
+        # 处理可能的ThinkingBlock
+        reply = ""
+        for block in resp.content:
+            if hasattr(block, 'text') and block.text:
+                reply = block.text
+                break
+            elif hasattr(block, 'thinking') and block.thinking:
+                reply = block.thinking
+                break
 
         # 添加助手回复到历史
         history.append({"role": "assistant", "content": reply})
