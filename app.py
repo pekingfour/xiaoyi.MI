@@ -29,6 +29,10 @@ MIMO_API_KEY = os.environ.get("MIMO_API_KEY", "sk-c2gypg28s6zw74f05ivjx5pbqn419m
 access_token = None
 access_token_time = 0
 
+# 对话历史（内存中保存每个用户的对话）
+conversation_history = {}
+HISTORY_MAX = 10
+
 # 任务存储
 TASKS_FILE = os.path.expanduser("~/.local/share/mimocode/life-assistant/tasks.json")
 
@@ -69,6 +73,11 @@ def call_mimo(user_input, user_id):
             base_url="https://api.xiaomimimo.com/anthropic"
         )
 
+        # 获取用户对话历史
+        if user_id not in conversation_history:
+            conversation_history[user_id] = []
+        history = conversation_history[user_id]
+
         # 读取任务
         tasks = []
         if os.path.exists(TASKS_FILE):
@@ -96,18 +105,29 @@ def call_mimo(user_input, user_id):
 3. 用户说"我要做XX"→记录任务
 4. 不要说"好的"、"收到"
 5. 适当幽默
+6. 用户问复杂问题时，要认真回答，不要拒绝
 
 【任务管理】
 用户说"我要做XX"时，你需要告诉用户任务已记录。"""
 
+        # 添加用户消息到历史
+        history.append({"role": "user", "content": user_input})
+        if len(history) > HISTORY_MAX:
+            history = history[-HISTORY_MAX:]
+            conversation_history[user_id] = history
+
         resp = client.messages.create(
             model="mimo-v2-pro",
-            max_tokens=256,
+            max_tokens=1024,
             system=system,
-            messages=[{"role": "user", "content": user_input}]
+            messages=history
         )
 
         reply = resp.content[0].text
+
+        # 添加助手回复到历史
+        history.append({"role": "assistant", "content": reply})
+        conversation_history[user_id] = history
 
         # 检查是否是任务相关
         if any(w in user_input for w in ["要做", "任务", "计划", "安排"]):
