@@ -19,11 +19,11 @@ if sys.platform == "win32":
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
-# 配置
-TOKEN = "xiaoyi123"
-APPID = "wx42474dc60531bdb7"
-APPSECRET = "5d0efac1eae139dcda1620091ebc691d"
-MIMO_API_KEY = "sk-c2gypg28s6zw74f05ivjx5pbqn419mkw2zsuu2j279120j8z"
+# 配置（优先从环境变量读取）
+TOKEN = os.environ.get("WECHAT_TOKEN", "xiaoyi123")
+APPID = os.environ.get("WECHAT_APPID", "wx42474dc60531bdb7")
+APPSECRET = os.environ.get("WECHAT_APPSECRET", "5d0efac1eae139dcda1620091ebc691d")
+MIMO_API_KEY = os.environ.get("MIMO_API_KEY", "sk-c2gypg28s6zw74f05ivjx5pbqn419mkw2zsuu2j279120j8z")
 
 # 访问令牌
 access_token = None
@@ -84,7 +84,7 @@ def call_mimo(user_input, user_id):
             task_info = f"今日待完成：{', '.join(t['content'][:10] for t in pending[:3])}"
 
         # 系统提示
-        system = f"""你是J.A.R.V.I.S.，一个有灵魂的生活助手。
+        system = f"""你是xiaoyi.MI，一个有灵魂的生活助手。
 
 【当前状态】
 - 时间：{datetime.now().strftime('%H:%M')}
@@ -230,4 +230,5 @@ if __name__ == "__main__":
     print("本地测试：")
     print("   python app.py")
     print()
-    app.run(debug=True, host="0.0.0.0", port=8080)
+    port = int(os.environ.get("PORT", 80))
+    app.run(debug=True, host="0.0.0.0", port=port)
